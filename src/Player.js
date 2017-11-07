@@ -43,34 +43,56 @@ class Player extends EventEmitter {
     this._duration = -1;
     this._position = -1;
     this._lastSync = -1;
+    this._loadedSeconds = -1;
     this._looping = false;
   }
 
-  _storeInfo(info) {
+  _storeInfo(info, skipSetLastSync = false) {
     if (!info) {
       return;
     }
 
-    this._duration = info.duration;
-    this._position = info.position;
-    this._lastSync = Date.now();
+    if ( info.duration != null )
+      this._duration = info.duration;
+
+    if ( info.position != null )
+      this._position = info.position;
+
+    if ( info.loadedSeconds != null )
+      this._loadedSeconds = info.loadedSeconds;
+
+    if ( !skipSetLastSync )
+      this._lastSync = Date.now();
   }
 
-  _updateState(err, state, results) {
+  // NOTE: "results" MUST BE AN ARRAY. IT CAN BE INVOKED BY "EventEmitter" CALLBACKS
+  _updateState(err, state, results, skipSetLastSync) {
     this._state = err ? MediaStates.ERROR : state;
 
     if (err || !results) {
       return;
     }
 
+<<<<<<< HEAD
     // Use last truthy value from results array as new media info
     const info = _.last(_.filter(results, _.identity));
     this._storeInfo(info);
+=======
+    // NOTE: Use last truthy value from results array as new media info
+    const info = _.last(_.filter(results, _.identity));
+    this._storeInfo(info, skipSetLastSync);
+>>>>>>> add buffering event + loadedSeconds
   }
 
   _handleEvent(event, data) {
     // console.log('event: ' + event + ', data: ' + JSON.stringify(data));
     switch (event) {
+      case 'buffering':
+        if ( MediaStates[this._state] <= MediaStates.BUFFERING )
+          this._updateState(null, MediaStates.BUFFERING, [data], true);
+        else
+          this._storeInfo(data, true)
+        break;
       case 'progress':
         // TODO
         break;
@@ -87,7 +109,7 @@ class Player extends EventEmitter {
         break;
       case 'pause':
         this._state = MediaStates.PAUSED;
-        this._storeInfo(data.info);
+        this._storeInfo(data);
         break;
       case 'forcePause':
         this.pause();
@@ -269,6 +291,7 @@ class Player extends EventEmitter {
     return this._duration;
   }
 
+<<<<<<< HEAD
   get state() {
     return this._state;
   }
@@ -293,6 +316,21 @@ class Player extends EventEmitter {
   get isPrepared() {
     return this._state == MediaStates.PREPARED;
   }
+=======
+  get volume() { return this._volume; }
+  get looping() { return this._looping; }
+  get duration() { return this._duration; }
+  get loadedSeconds() { return this._loadedSeconds; }
+
+  get state()      { return this._state; }
+  get canPlay()    { return this._state >= MediaStates.PREPARED; }
+  get canStop()    { return this._state >= MediaStates.PLAYING;  }
+  get canPrepare() { return this._state == MediaStates.IDLE;     }
+  get isPlaying()  { return this._state == MediaStates.PLAYING;  }
+  get isStopped()  { return this._state <= MediaStates.PREPARED; }
+  get isPaused()   { return this._state == MediaStates.PAUSED;   }
+  get isPrepared() { return this._state == MediaStates.PREPARED; }
+>>>>>>> add buffering event + loadedSeconds
 }
 
 export default Player;
