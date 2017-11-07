@@ -73,15 +73,9 @@ class Player extends EventEmitter {
       return;
     }
 
-<<<<<<< HEAD
-    // Use last truthy value from results array as new media info
-    const info = _.last(_.filter(results, _.identity));
-    this._storeInfo(info);
-=======
     // NOTE: Use last truthy value from results array as new media info
     const info = _.last(_.filter(results, _.identity));
     this._storeInfo(info, skipSetLastSync);
->>>>>>> add buffering event + loadedSeconds
   }
 
   _handleEvent(event, data) {
