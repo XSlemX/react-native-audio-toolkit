@@ -43,6 +43,10 @@
     return self;
 }
 
++ (BOOL)requiresMainQueueSetup {
+    return YES;
+}
+
 - (NSMutableDictionary *)playerPool {
     if (!_playerPool) {
         _playerPool = [NSMutableDictionary new];
