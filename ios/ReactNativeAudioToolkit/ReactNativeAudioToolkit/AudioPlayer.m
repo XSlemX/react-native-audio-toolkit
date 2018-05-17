@@ -179,6 +179,13 @@ RCT_EXPORT_METHOD(prepare:(nonnull NSNumber *)playerId
             player.autoDestroy = [autoDestroy boolValue];
         }
 
+        // NOTE: PREFERRED BUFFERING TIME WAIT "500 SECONDS" AND "DO NOT WAIT FOR PLAYBACK"
+        float version = [[[UIDevice currentDevice] systemVersion] floatValue];
+        if (version >= 10.0) {
+            player.currentItem.preferredForwardBufferDuration = 500;
+            player.automaticallyWaitsToMinimizeStalling = false;
+        }
+
         self.playerPool[playerId] = player;
         [self setLastPlayerId:playerId];
 
@@ -229,7 +236,12 @@ RCT_EXPORT_METHOD(prepare:(nonnull NSNumber *)playerId
         return;
     }
 
+<<<<<<< HEAD
     if (loadedSeconds > 10) {
+=======
+    // Callback when ready / failed
+    if ( loadedSeconds >= 10 && player.currentItem.status == AVPlayerStatusReadyToPlay) {
+>>>>>>> fix merge
         callback(@[[NSNull null]]);
         self.callbackPool[playerId] = nil;
     } else if (player.status == AVPlayerStatusFailed) {
